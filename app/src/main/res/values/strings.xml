@@ -3,7 +3,6 @@
 
     <array name="encryption">
         <item>None</item>
-        <item>Base64</item>
         <item>AES</item>
     </array>
 </resources>

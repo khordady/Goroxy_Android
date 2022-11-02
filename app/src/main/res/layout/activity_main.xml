@@ -3,8 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
     android:padding="15dp"
+    android:layout_gravity="center"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -24,7 +26,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:hint="port" />
+            android:hint="port"
+            android:inputType="number" />
     </LinearLayout>
 
     <TextView
@@ -37,6 +40,13 @@
         android:id="@+id/encryption"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/encryption_key"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:hint="Encryption Key" />
 
     <CheckBox
         android:id="@+id/authentication"
@@ -60,8 +70,12 @@
         android:hint="password" />
 
     <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/connectbtn"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/circ_connect"
         android:onClick="connect"
+        android:textColor="@color/white"
         android:text="Connect" />
 </LinearLayout>
