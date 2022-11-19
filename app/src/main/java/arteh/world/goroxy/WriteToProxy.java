@@ -15,6 +15,7 @@ public class WriteToProxy extends Thread {
 
     public void run() {
         byte[] data = new byte[32 * 1024];
+        byte[] processed;
         int length;
 
         try {
@@ -22,7 +23,9 @@ public class WriteToProxy extends Thread {
             OutputStream outputStream = client_to_proxy.getOutputStream();
 
             while ((length = inputStream.read(data)) != -1) {
-                outputStream.write(data, 0, length);
+                processed = Encryptor.processToServer(data, length);
+                outputStream.write(Encryptor.intToArray(processed.length));
+                outputStream.write(processed, 0, processed.length);
             }
         } catch (IOException e) {
             e.printStackTrace();

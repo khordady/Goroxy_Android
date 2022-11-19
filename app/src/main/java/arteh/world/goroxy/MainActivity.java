@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
             Config.encryption = encryption.getSelectedItemPosition();
             Config.authentication = authentication.isChecked();
 
-           listenSocket= new ListenSocket(new Listener() {
+            listenSocket = new ListenSocket(new Listener() {
                 @Override
                 public void Connected() {
                     runOnUiThread(() -> {
@@ -88,8 +88,8 @@ public class MainActivity extends Activity {
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show());
                 }
             });
-           listenSocket.start();
-        } else{
+            listenSocket.start();
+        } else {
             view.setBackgroundResource(R.drawable.circ_connect);
             view.setTag("0");
             connectbtn.setText("Connect");

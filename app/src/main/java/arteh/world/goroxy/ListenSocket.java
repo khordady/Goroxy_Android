@@ -10,16 +10,13 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-
 public class ListenSocket extends Thread {
     ServerSocket serverSocket;
     Listener listener;
-    Cipher cipher;
 
     public ListenSocket(Listener listener) {
         this.listener = listener;
+        Encryptor.initialize();
     }
 
     public void close() {
@@ -40,9 +37,9 @@ public class ListenSocket extends Thread {
                 browser_to_client.setReuseAddress(true);
                 browser_to_client.setSoTimeout(0);
 
-                byte[] data = new byte[512];
+                byte[] data = new byte[9 * 1024];
 
-                StringBuilder builder = new StringBuilder(100);
+                StringBuilder builder = new StringBuilder(300);
                 InputStream inputStream = browser_to_client.getInputStream();
                 int length;
 
@@ -57,9 +54,8 @@ public class ListenSocket extends Thread {
                 message = message + builder;
 
                 byte[] finali = message.getBytes(StandardCharsets.UTF_8);
-
                 if (Config.encryption == 1)
-                    finali = encryptMethod(message.substring(0, message.length() - (message.length() % Config.encryption_key.length())).getBytes(StandardCharsets.UTF_8));
+                    finali = Encryptor.encryptAES(finali, finali.length);
 
                 InetAddress serverAddr = InetAddress.getByName(Config.server);
                 SocketAddress socketaddres = new InetSocketAddress(serverAddr, Config.port);
@@ -69,6 +65,7 @@ public class ListenSocket extends Thread {
                 client_to_proxy.connect(socketaddres, 5000);
 
                 OutputStream outputStream = client_to_proxy.getOutputStream();
+                outputStream.write(finali.length);
                 outputStream.write(finali);
                 outputStream.flush();
 
@@ -80,17 +77,4 @@ public class ListenSocket extends Thread {
         }
     }
 
-    private byte[] encryptMethod(byte[] message) {
-        try {
-            if (cipher == null) {
-                SecretKeySpec keySpec = new SecretKeySpec(Config.encryption_key.getBytes(StandardCharsets.UTF_8), "AES");
-                cipher = Cipher.getInstance("AES/ECB/NoPadding");
-                cipher.init(1, keySpec);
-            }
-            return cipher.doFinal(message);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 }
