@@ -29,7 +29,15 @@ public class Encryptor {
     }
 
     public static byte[] encryptAES(byte[] message, int length) {
-        byte[] finalbuffer = new byte[length + 4];
+        int final_length = length + 4;
+        int key_length = Config.encryption_key.getBytes(StandardCharsets.UTF_8).length;
+        int plus = (length + 4) % key_length;
+        if (plus > 0) {
+            final_length = length + 4 + (key_length - plus);
+        }
+
+        byte[] finalbuffer = new byte[final_length];
+
         try {
             System.arraycopy(intToArray(length), 0, finalbuffer, 0, 4);
             System.arraycopy(message, 0, finalbuffer, 4, length);
@@ -83,6 +91,11 @@ public class Encryptor {
     }
 
     public static byte[] intToArray(int size) {
+//        byte[] bytes = new byte[4];
+//        bytes[0] = (byte) (0xff & size);
+//        bytes[1] = (byte) (0xff & (size >> 8));
+//        bytes[2] = (byte) (0xff & (size >> 16));
+//        bytes[3] = (byte) (0xff & (size >> 32));
         return ByteBuffer.allocate(4).putInt(size).array();
     }
 }

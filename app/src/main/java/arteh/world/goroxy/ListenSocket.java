@@ -34,6 +34,7 @@ public class ListenSocket extends Thread {
             serverSocket.setSoTimeout(0);
             while (true) {
                 Socket browser_to_client = serverSocket.accept();
+                listener.Connected();
                 browser_to_client.setReuseAddress(true);
                 browser_to_client.setSoTimeout(0);
 
@@ -53,6 +54,8 @@ public class ListenSocket extends Thread {
                     message = Config.username + "," + Config.password + "\r\n";
                 message = message + builder;
 
+                System.out.println("MESSAGE ISSSSSSSSSS: " + message);
+
                 byte[] finali = message.getBytes(StandardCharsets.UTF_8);
                 if (Config.encryption == 1)
                     finali = Encryptor.encryptAES(finali, finali.length);
@@ -65,7 +68,7 @@ public class ListenSocket extends Thread {
                 client_to_proxy.connect(socketaddres, 5000);
 
                 OutputStream outputStream = client_to_proxy.getOutputStream();
-                outputStream.write(finali.length);
+                outputStream.write(Encryptor.intToArray(finali.length));
                 outputStream.write(finali);
                 outputStream.flush();
 
@@ -73,6 +76,7 @@ public class ListenSocket extends Thread {
                 new WriteToProxy(client_to_proxy, browser_to_client).start();
             }
         } catch (Exception e) {
+            listener.failed(e.getMessage());
             e.printStackTrace();
         }
     }
