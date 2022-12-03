@@ -2,43 +2,38 @@ package arteh.world.goroxy;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class Encryptor {
-    static Cipher cipheren;
-    static Cipher cipherde;
+    static SecretKeySpec keySpec;
+    static IvParameterSpec ivSpec;
 
     public static void initialize() {
-        if (cipheren == null) {
-            try {
-                SecretKeySpec keySpec = new SecretKeySpec(Config.encryption_key.getBytes(StandardCharsets.UTF_8), "AES");
-                cipheren = Cipher.getInstance("AES/ECB/NoPadding");
-                cipheren.init(1, keySpec);
-
-                cipherde = Cipher.getInstance("AES/GCM/NoPadding");
-                cipherde.init(1, keySpec);
-            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
-                e.printStackTrace();
-            }
+        try {
+            keySpec = new SecretKeySpec(Config.encryption_key.getBytes(StandardCharsets.UTF_8), "AES");
+            ivSpec = new IvParameterSpec(Config.encryption_key.getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public static byte[] encryptAES(byte[] message, int length) {
-        int final_length = length + 4;
-        int key_length = Config.encryption_key.getBytes(StandardCharsets.UTF_8).length;
-        int plus = (length + 4) % key_length;
-        if (plus > 0) {
-            final_length = length + 4 + (key_length - plus);
-        }
-
-        byte[] finalbuffer = new byte[final_length];
-
         try {
+            Cipher cipheren = Cipher.getInstance("AES/CBC/NoPadding");
+            cipheren.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+
+            int final_length = length + 4;
+            int key_length = Config.encryption_key.getBytes(StandardCharsets.UTF_8).length;
+            int plus = (length + 4) % key_length;
+            if (plus > 0) {
+                final_length = length + 4 + (key_length - plus);
+            }
+
+            byte[] finalbuffer = new byte[final_length];
+
             System.arraycopy(intToArray(length), 0, finalbuffer, 0, 4);
             System.arraycopy(message, 0, finalbuffer, 4, length);
 
@@ -51,6 +46,9 @@ public class Encryptor {
 
     public static byte[] decryptAES(byte[] data, int length) {
         try {
+            Cipher cipherde = Cipher.getInstance("AES/CBC/NoPadding");
+            cipherde.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+
             byte[] plainBytes = cipherde.doFinal(data, 0, length);
 
             byte[] btlength = new byte[4];
@@ -59,7 +57,6 @@ public class Encryptor {
 
             byte[] finalBuffer = new byte[size];
             System.arraycopy(plainBytes, 4, finalBuffer, 0, size);
-
             return finalBuffer;
         } catch (Exception e) {
             e.printStackTrace();
@@ -91,11 +88,6 @@ public class Encryptor {
     }
 
     public static byte[] intToArray(int size) {
-//        byte[] bytes = new byte[4];
-//        bytes[0] = (byte) (0xff & size);
-//        bytes[1] = (byte) (0xff & (size >> 8));
-//        bytes[2] = (byte) (0xff & (size >> 16));
-//        bytes[3] = (byte) (0xff & (size >> 32));
         return ByteBuffer.allocate(4).putInt(size).array();
     }
 }

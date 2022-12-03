@@ -11,12 +11,14 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import java.nio.charset.StandardCharsets;
+
 public class MainActivity extends Activity {
 
     SharedPreferences sh;
-    EditText server, port, username, password, encryption_key;
+    EditText server, port, username, password, encryption_key, encryption_iv;
     Spinner encryption;
-    CheckBox authentication;
+    CheckBox authentication, write_server;
     Button connectbtn;
     ListenSocket listenSocket;
 
@@ -31,7 +33,9 @@ public class MainActivity extends Activity {
         password = findViewById(R.id.password);
         encryption = findViewById(R.id.encryption);
         encryption_key = findViewById(R.id.encryption_key);
+        encryption_iv = findViewById(R.id.encryption_iv);
         authentication = findViewById(R.id.authentication);
+        write_server = findViewById(R.id.write_server);
 
         connectbtn = findViewById(R.id.connectbtn);
 
@@ -39,6 +43,7 @@ public class MainActivity extends Activity {
                 R.array.encryption, android.R.layout.simple_spinner_dropdown_item);
         encryption.setAdapter(adapter);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        encryption.setSelection(1,false);
 
         sh = getSharedPreferences("date", MODE_PRIVATE);
         if (!sh.getString("server", " ").equals(" ")) {
@@ -47,8 +52,10 @@ public class MainActivity extends Activity {
             username.setText(sh.getString("username", ""));
             password.setText(sh.getString("password", ""));
             encryption_key.setText(sh.getString("encryption_key", ""));
+            encryption_iv.setText(sh.getString("encryption_iv", ""));
             encryption.setSelection(sh.getInt("encryption", 0));
-            authentication.setChecked(sh.getBoolean("authentication", false));
+            authentication.setChecked(sh.getBoolean("authentication", true));
+            write_server.setChecked(sh.getBoolean("write_server", true));
         }
     }
 
@@ -61,8 +68,10 @@ public class MainActivity extends Activity {
             editor.putString("username", username.getText().toString());
             editor.putString("password", password.getText().toString());
             editor.putString("encryption_key", encryption_key.getText().toString());
+            editor.putString("encryption_iv", encryption_iv.getText().toString());
             editor.putInt("encryption", encryption.getSelectedItemPosition());
             editor.putBoolean("authentication", authentication.isChecked());
+            editor.putBoolean("write_server", write_server.isChecked());
             editor.apply();
 
             Config.server = server.getText().toString();
@@ -70,8 +79,12 @@ public class MainActivity extends Activity {
             Config.username = username.getText().toString();
             Config.password = password.getText().toString();
             Config.encryption_key = encryption_key.getText().toString();
+            Config.encryption_iv = encryption_iv.getText().toString();
             Config.encryption = encryption.getSelectedItemPosition();
             Config.authentication = authentication.isChecked();
+            Config.write_server = write_server.isChecked();
+
+            Encryptor.initialize();
 
             listenSocket = new ListenSocket(new Listener() {
                 @Override

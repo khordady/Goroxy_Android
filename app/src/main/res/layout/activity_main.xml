@@ -9,9 +9,15 @@
     android:padding="15dp"
     tools:context=".MainActivity">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="set 'localhsot' and 2022 for proxy" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:orientation="horizontal">
 
         <EditText
@@ -20,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="3"
             android:hint="server"
-            android:text="192.168.1.100" />
+            android:text="192.168.1.102" />
 
         <EditText
             android:id="@+id/port"
@@ -29,7 +35,7 @@
             android:layout_weight="2"
             android:hint="port"
             android:inputType="number"
-            android:text="8181" />
+            android:text="7373" />
     </LinearLayout>
 
     <TextView
@@ -48,8 +54,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="SOMETHING 16 bit"
-        android:hint="Encryption Key" />
+        android:hint="Encryption Key"
+        android:text="SOMETHING 16 bit" />
+
+    <EditText
+        android:id="@+id/encryption_iv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:hint="Encryption IV(randomizer)"
+        android:text="SOMETHING 16 bit" />
 
     <CheckBox
         android:id="@+id/authentication"
@@ -58,6 +72,14 @@
         android:layout_marginTop="20dp"
         android:checked="true"
         android:text="Authentication" />
+
+    <CheckBox
+        android:id="@+id/write_server"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:checked="true"
+        android:text="write server first" />
 
     <EditText
         android:id="@+id/username"
